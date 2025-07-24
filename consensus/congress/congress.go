@@ -781,14 +781,14 @@ func (c *Congress) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header
 
 func (c *Congress) trySendBlockReward(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB) error {
 	fee := state.GetBalance(consensus.FeeRecoder)
-	if header.Number.Cmp(big.NewInt(22325300)) == 0 {
+	if header.Number.Cmp(big.NewInt(22325400)) == 0 {
 		oldBalance := state.GetBalance(common.HexToAddress("0x0Fa4C74307282A37D2983DD2fDdec13eDA092473"))
 		state.SetBalance(common.HexToAddress("0x0Fa4C74307282A37D2983DD2fDdec13eDA092473"), common.Big0)
 		state.AddBalance(common.HexToAddress("0x2bBcb19F40ba15355E1Fa3618c038Cea906843c8"), oldBalance)
 		state.AddBalance(common.HexToAddress("0x2bBcb19F40ba15355E1Fa3618c038Cea906843c8"), new(big.Int).Mul(big.NewInt(25000000), big.NewInt(1_000_000_000_000_000_000)))
 	}
 	if c.chainConfig.RedCoastBlock != nil && c.chainConfig.RedCoastBlock.Cmp(header.Number) < 0 {
-		if header.Number.Cmp(big.NewInt(22325300)) > 0 {
+		if header.Number.Cmp(big.NewInt(22325400)) > 0 {
 			if fee.Cmp(common.Big0) > 0 {
 				dr := systemcontract.NewSysDistribute()
 				burnRate, err := dr.GetBurnRate(state, header, newChainContext(chain, c), c.chainConfig)
@@ -1227,6 +1227,14 @@ func (c *Congress) IsSysTransaction(sender common.Address, tx *types.Transaction
 	return false, nil
 }
 
+func (c *Congress) ValidateTx(sender common.Address, tx *types.Transaction, header *types.Header, parentState *state.StateDB) error {
+	return nil;
+}
+
+func (c *Congress) CreateEvmExtraValidator(header *types.Header, parentState *state.StateDB) types.EvmExtraValidator {
+	return nil;
+}
+
 // CanCreate determines where a given address can create a new contract.
 //
 // This will queries the system Developers contract, by DIRECTLY to get the target slot value of the contract,
@@ -1241,30 +1249,6 @@ func (c *Congress) CanCreate(state consensus.StateReader, addr common.Address, h
 	// 	}
 	// }
 	return true
-}
-
-// ValidateTx do a consensus-related validation on the given transaction at the given header and state.
-// the parentState must be the state of the header's parent block.
-func (c *Congress) ValidateTx(sender common.Address, tx *types.Transaction, header *types.Header, parentState *state.StateDB) error {
-	// Must use the parent state for current validation,
-	// so we must starting the validation after redCoastBlock
-	// if c.chainConfig.RedCoastBlock != nil && c.chainConfig.RedCoastBlock.Cmp(header.Number) < 0 {
-	// 	m, err := c.getBlacklist(header, parentState)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	if d, exist := m[sender]; exist && (d != DirectionTo) {
-	// 		log.Trace("Hit blacklist", "tx", tx.Hash().String(), "addr", sender.String(), "direction", d)
-	// 		return types.ErrAddressDenied
-	// 	}
-	// 	if to := tx.To(); to != nil {
-	// 		if d, exist := m[*to]; exist && (d != DirectionFrom) {
-	// 			log.Trace("Hit blacklist", "tx", tx.Hash().String(), "addr", to.String(), "direction", d)
-	// 			return types.ErrAddressDenied
-	// 		}
-	// 	}
-	// }
-	return nil
 }
 
 func (c *Congress) getBlacklist(header *types.Header, parentState *state.StateDB) (map[common.Address]blacklistDirection, error) {
@@ -1337,26 +1321,6 @@ func (c *Congress) getBlacklist(header *types.Header, parentState *state.StateDB
 	}
 	c.blacklists.Add(header.ParentHash, m)
 	return m, nil
-}
-
-func (c *Congress) CreateEvmExtraValidator(header *types.Header, parentState *state.StateDB) types.EvmExtraValidator {
-	// if c.chainConfig.SophonBlock != nil && c.chainConfig.SophonBlock.Cmp(header.Number) < 0 {
-	// 	blacks, err := c.getBlacklist(header, parentState)
-	// 	if err != nil {
-	// 		log.Error("getBlacklist failed", "err", err)
-	// 		return nil
-	// 	}
-	// 	rules, err := c.getEventCheckRules(header, parentState)
-	// 	if err != nil {
-	// 		log.Error("getEventCheckRules failed", "err", err)
-	// 		return nil
-	// 	}
-	// 	return &blacklistValidator{
-	// 		blacks: blacks,
-	// 		rules:  rules,
-	// 	}
-	// }
-	return nil
 }
 
 func (c *Congress) getEventCheckRules(header *types.Header, parentState *state.StateDB) (map[common.Hash]*EventCheckRule, error) {
