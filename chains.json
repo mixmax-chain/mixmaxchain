@@ -21,6 +21,9 @@
     "app_resource": {
         "ic_chain_select": "https://pic.mixmax.cc/ic_chain_select.png",
         "ic_chain_unselect": "https://pic.mixmax.cc/ic_chain_unselect.png",
-        "color_chain_bg": "0x4E2700"
+        "ic_chain_unselect_dark": "https://pic.mixmax.cc/ic_chain_unselect.png",
+        "color_chain_bg": "0x4E2700",
+        "color_chain_text": "0xFFFFFF",
+        "ic_home_logo":"https://pic.mixmax.cc/ic_chain_select.png"
     }
 }
